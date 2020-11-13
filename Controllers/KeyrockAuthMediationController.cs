@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 namespace ACG.api.Controllers
 {
     [ApiController]
-    [Route("/")]
+    [Route("/auth")]
     public class KeyrockAuthMediationController : ControllerBase
     {
         private readonly IConfiguration configuration;
@@ -41,12 +41,41 @@ namespace ACG.api.Controllers
             var response = await client.PostAsync(tokenUrl, requestData);
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var tokenObject = JsonConvert.DeserializeObject<KeyrockTokenResponse>(await response.Content.ReadAsStringAsync());
-                RedirectResult redirectResult = Redirect( $"{state}?access_token={tokenObject.AccessToken}" );
+                var tokenResponseText = await response.Content.ReadAsStringAsync();
+                var tokenObject = JsonConvert.DeserializeObject<KeyrockTokenResponse>(tokenResponseText);
+                var urlsep = state.IndexOf('?') >= 0 ? "&" : "?";
+                RedirectResult redirectResult = Redirect($"{state}{urlsep}_keyrock_token_response={tokenResponseText}");
                 return redirectResult;
             }
 
             return NotFound();
+        }
+
+        [HttpGet("refresh")]
+        public async Task<KeyrockTokenResponse> RefreshTokenMediation(string refreshToken)
+        {
+            var keryockAuth = configuration.GetSection("keryockAuth");
+            var clientId = keryockAuth.GetValue<string>("clientId");
+            var clientSecret = keryockAuth.GetValue<string>("clientSecret");
+            var tokenUrl = keryockAuth.GetValue<string>("tokenUrl");
+            var redirectUrl = keryockAuth.GetValue<string>("redirectUrl");
+
+            var client = new HttpClient();
+
+            var tokenRequestParameters = $"grant_type=refresh_token&refresh_token={refreshToken}";
+            var requestData = new StringContent(tokenRequestParameters, Encoding.UTF8, "application/x-www-form-urlencoded");
+            var basicauthtoken = Encoding.ASCII.GetBytes($"{clientId}:{clientSecret}");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(basicauthtoken));
+            
+            var response = await client.PostAsync(tokenUrl, requestData);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var tokenResponseText = await response.Content.ReadAsStringAsync();
+                var tokenObject = JsonConvert.DeserializeObject<KeyrockTokenResponse>(tokenResponseText);
+                return tokenObject;
+            }                  
+
+            return null;
         }
 
     }
