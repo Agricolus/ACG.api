@@ -37,22 +37,27 @@ namespace ACG.api.Controllers
             var requestData = new StringContent(tokenRequestParameters, Encoding.UTF8, "application/x-www-form-urlencoded");
             var basicauthtoken = Encoding.ASCII.GetBytes($"{clientId}:{clientSecret}");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(basicauthtoken));
-            
+
             var response = await client.PostAsync(tokenUrl, requestData);
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var tokenResponseText = await response.Content.ReadAsStringAsync();
-                var tokenObject = JsonConvert.DeserializeObject<KeyrockTokenResponse>(tokenResponseText);
+                var tokenResponseText = (await response.Content.ReadAsStringAsync()).Replace("\"", "\\\"");
+                // var tokenObject = JsonConvert.DeserializeObject<KeyrockTokenResponse>(tokenResponseText);
                 var urlsep = state.IndexOf('?') >= 0 ? "&" : "?";
-                RedirectResult redirectResult = Redirect($"{state}{urlsep}_keyrock_token_response={tokenResponseText}");
-                return redirectResult;
+                // RedirectResult redirectResult = Redirect($"{state}{urlsep}_keyrock_token_response={tokenResponseText}");
+                // return redirectResult;
+                return new ContentResult
+                {
+                    ContentType = "text/html",
+                    Content = $"<script>window.location.href = \"{state}{urlsep}_keyrock_token_response={tokenResponseText}\";</script>"
+                };
             }
 
             return NotFound();
         }
 
         [HttpGet("refresh")]
-        public async Task<KeyrockTokenResponse> RefreshTokenMediation(string refreshToken)
+        public async Task<IActionResult> RefreshTokenMediation(string refreshToken)
         {
             var keryockAuth = configuration.GetSection("keryockAuth");
             var clientId = keryockAuth.GetValue<string>("clientId");
@@ -66,16 +71,16 @@ namespace ACG.api.Controllers
             var requestData = new StringContent(tokenRequestParameters, Encoding.UTF8, "application/x-www-form-urlencoded");
             var basicauthtoken = Encoding.ASCII.GetBytes($"{clientId}:{clientSecret}");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(basicauthtoken));
-            
+
             var response = await client.PostAsync(tokenUrl, requestData);
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var tokenResponseText = await response.Content.ReadAsStringAsync();
-                var tokenObject = JsonConvert.DeserializeObject<KeyrockTokenResponse>(tokenResponseText);
-                return tokenObject;
-            }                  
+                // var tokenObject = JsonConvert.DeserializeObject<KeyrockTokenResponse>(tokenResponseText);
+                return Ok(tokenResponseText);
+            }
 
-            return null;
+            return BadRequest();
         }
 
     }

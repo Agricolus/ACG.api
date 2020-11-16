@@ -39,6 +39,16 @@ namespace ACG.api
                     TermsOfService = null
                 });
             });
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("http://localhost:8082",
+                                        "http://dockerdev.agricolus.com");
+                });
+            });
+
             services.AddControllers();
         }
 
@@ -53,6 +63,8 @@ namespace ACG.api
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthorization();
 
@@ -69,8 +81,8 @@ namespace ACG.api
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ACG Web API");
 
-                // To serve SwaggerUI at application's root page, set the RoutePrefix property to an empty string.
-                c.RoutePrefix = string.Empty;
+            // To serve SwaggerUI at application's root page, set the RoutePrefix property to an empty string.
+            c.RoutePrefix = string.Empty;
             });
         }
     }
