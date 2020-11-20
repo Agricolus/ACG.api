@@ -44,8 +44,7 @@ namespace ACG.api
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.WithOrigins("http://localhost:8082",
-                                        "http://dockerdev.agricolus.com");
+                    builder.WithOrigins("*").WithMethods("*").WithHeaders("*");
                 });
             });
 
@@ -81,8 +80,8 @@ namespace ACG.api
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "ACG Web API");
 
-            // To serve SwaggerUI at application's root page, set the RoutePrefix property to an empty string.
-            c.RoutePrefix = string.Empty;
+                // To serve SwaggerUI at application's root page, set the RoutePrefix property to an empty string.
+                c.RoutePrefix = string.Empty;
             });
         }
     }
