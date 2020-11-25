@@ -42,10 +42,7 @@ namespace ACG.api.Controllers
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var tokenResponseText = (await response.Content.ReadAsStringAsync()).Replace("\"", "\\\"");
-                // var tokenObject = JsonConvert.DeserializeObject<KeyrockTokenResponse>(tokenResponseText);
                 var urlsep = state.IndexOf('?') >= 0 ? "&" : "?";
-                // RedirectResult redirectResult = Redirect($"{state}{urlsep}_keyrock_token_response={tokenResponseText}");
-                // return redirectResult;
                 return new ContentResult
                 {
                     ContentType = "text/html",
