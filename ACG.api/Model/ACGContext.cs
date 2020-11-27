@@ -1,3 +1,4 @@
+using ACG.api.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace ACG
@@ -17,11 +18,14 @@ namespace ACG
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            modelBuilder.HasPostgresExtension("uuid-ossp")
+                               .Entity<Machine>()
+                               .Property(e => e.Id)
+                               .HasDefaultValueSql("uuid_generate_v4()");
             // .. and invoke "BuildIndexesFromAnnotations"!
             // modelBuilder.BuildIndexesFromAnnotations();
         }
 
-        // public DbSet<UserToken> UsersTokens { get; set; }
+        public DbSet<Machine> Machines { get; set; }
     }
 }

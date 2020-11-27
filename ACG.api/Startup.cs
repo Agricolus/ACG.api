@@ -27,7 +27,7 @@ namespace ACG.api
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+        public void ConfigureServices(IServiceCollection services)
         {
             // Swagger Config
             services.AddSwaggerGen(c =>
@@ -49,9 +49,9 @@ namespace ACG.api
                 });
             });
 
-            switch (configuration["DataBaseType"])
+            switch (Configuration["DataBaseType"])
             {
-                case "postgre": services.AddDbContext<ACGContext>(options => options.UseNpgsql(configuration.GetConnectionString("ACGPostgreContext"))); break;
+                case "postgre": services.AddDbContext<ACGContext>(options => options.UseNpgsql(Configuration.GetConnectionString("ACGPostgreContext"))); break;
                     // case "mysql": services.AddDbContext<StationsContext>(options => options.UseMySql(configuration.GetConnectionString("ACGMySqlContext"))); break;
             }
 
