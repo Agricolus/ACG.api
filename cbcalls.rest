@@ -1,0 +1,79 @@
+
+GET http://dockerdev.agricolus.com:1026/v2/entities?options=keyValues HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+
+###
+
+
+DELETE http://dockerdev.agricolus.com:1026/v2/entities/aa9eb4bb-9a21-4dba-a7ec-58d58e092b3c HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+
+###
+POST http://dockerdev.agricolus.com:1026/v2/entities?options=keyValues HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+Content-Type: application/json
+
+{
+    "id": "2a9eb4bb-9a21-4dba-a7ec-58d58e092b3c",
+    "type": "tractor",
+    "externalId": "461859",
+    "userId": "bd8a4707-df0a-41a7-9223-5f928d27f687",
+    "producerCode": "johndeere",
+    "position": {
+        "type": "Point",
+        "coordinates": [
+            51.48975,
+            -0.9410555555555555
+        ]
+    },
+
+    "model": "6215R",
+    "code": "L 08PF4",
+    "description": "Two-wheel Drive Tractors - 140 Hp And Above",
+    "producerCommercialName": "JOHN DEERE",
+    "pTime": "2020-11-25T09:47:46Z",
+    "otherData": "{\\"ValueKind\\":1}"
+}
+
+###
+
+
+GET http://dockerdev.agricolus.com:1026/v2/subscriptions HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+
+###
+
+
+DELETE http://dockerdev.agricolus.com:1026/v2/subscriptions/5fc526a8c113caefd12f6071 HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+
+###
+POST http://dockerdev.agricolus.com:5005/machines/import/producer HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+{
+    "id": "Aa9eb4bb-9a21-4dba-a7ec-58d58e092b3c",
+    "type": "tractor",
+    "externalId": "461859",
+    "userId": "bd8a4707-df0a-41a7-9223-5f928d27f687",
+    "producerCode": "johndeere",
+    "lat": 51.48975,
+    "lng": -0.9410555555555555,
+    "name": "not valid = < > ; ()",
+    "model": "6215R",
+    "code": "L 08PF4",
+    "description": "Two-wheel Drive Tractors - 140 Hp And Above",
+    "producerCommercialName": "JOHN DEERE",
+    "pTime": "2020-11-25T09:47:46Z"
+}

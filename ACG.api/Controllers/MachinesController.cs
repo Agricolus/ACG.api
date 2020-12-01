@@ -47,12 +47,6 @@ namespace ACG.api.Controllers
 
             return Ok(machines);
         }
-        // [HttpGet("import/{user}/producer")]
-        // public async Task<IActionResult> ImportMachines(string producer, string user)
-        // {
-
-        //     return NotFound();
-        // }
 
 
         [HttpPost("import/producer")]
@@ -73,10 +67,63 @@ namespace ACG.api.Controllers
                 PTime = machine.PTime,
                 ExternalId = machine.ExternalId,
                 Id = machine.Id.Value,
-                OtherData = JsonConvert.SerializeObject(machine.OtherData)
+                OtherData = machine.OtherData != null ? machine.OtherData.ToString() : null
             };
             db.Machines.Add(m);
-            await db.SaveChangesAsync();
+            try
+            {
+                await db.SaveChangesAsync();
+                var cbMachineEntity = new Dto.ContextBroker.Machine()
+                {
+                    Id = m.Id.ToString(),
+                    Type = m.Type,
+                    Code = m.Code,
+                    Description = m.Description,
+                    Model = m.Model,
+                    Name = m.Name,
+                    ProducerCode = m.ProducerCode,
+                    ProducerCommercialName = m.ProducerCommercialName,
+                    UserId = m.UserId,
+                    Position = new Dto.ContextBroker.GeoJsonPoint()
+                    {
+                        Coordinates = new double[] { m.Lat.Value, m.Lng.Value }
+                    },
+                    PTime = m.PTime.Value,
+                    ExternalId = m.ExternalId
+                };
+                var cbConfig = configuration.GetSection("contextBroker");
+                var cbUrl = cbConfig.GetValue<string>("cbUrl");
+                var contextBrokerNotificationEndpoint = cbConfig.GetValue<string>("machineNoditiciationCB");
+
+                var cbClient = new ContextBrokerClient("agri_contractor_gateway", "/", cbUrl);
+                var cbEntity = await cbClient.CreateEntity<Dto.ContextBroker.Machine>(cbMachineEntity, AttributesFormatEnum.keyValues);
+                var sub = new Subscription()
+                {
+                    Subject = new Subject()
+                    {
+                        Entities = new Entity[] {
+                            new Entity {
+                                Id = cbMachineEntity.Id,
+                                Type = cbMachineEntity.Type
+                            }
+                        }
+                    },
+                    Notification = new Notification()
+                    {
+                        Http = new Http()
+                        {
+                            Url = new Uri(string.Format(contextBrokerNotificationEndpoint, cbMachineEntity.Id))
+                        }
+                    }
+                };
+                await cbClient.CreateSubscription(sub);
+            }
+            catch (Exception e)
+            {
+                db.Machines.Remove(m);
+                await db.SaveChangesAsync();
+                throw new Exception($"main api context broker error: {e.Message}", e);
+            }
             var outMachine = new Dto.Machine()
             {
                 Code = m.Code,
@@ -92,53 +139,18 @@ namespace ACG.api.Controllers
                 PTime = m.PTime,
                 ExternalId = m.ExternalId,
                 Id = m.Id,
-                OtherData = m.OtherData
+                OtherData = JsonConvert.DeserializeObject<object>(m.OtherData)
             };
-            var cbConfig = configuration.GetSection("contextBroker");
-            var cbUrl = cbConfig.GetValue<string>("cbUrl");
-            var contextBrokerNotificationEndpoint = cbConfig.GetValue<string>("machineNoditiciationCB");
-
-            try
-            {
-                var cbClient = new ContextBrokerClient("agri_contractor_gateway", "/", cbUrl);
-                var cbEntity = await cbClient.CreateEntity<Dto.Machine>(outMachine, AttributesFormatEnum.keyValues);
-                var sub = new Subscription()
-                {
-                    Subject = new Subject()
-                    {
-                        Entities = new Entity[] {
-                            new Entity {
-                                Id = outMachine.Id.Value.ToString(),
-                                Type = outMachine.Type
-                            }
-                        }
-                    },
-                    Notification = new Notification()
-                    {
-                        Http = new Http()
-                        {
-                            Url = new Uri(string.Format(contextBrokerNotificationEndpoint, outMachine.Id.Value.ToString()))
-                        }
-                    }
-                };
-                await cbClient.CreateSubscription(sub);
-            }
-            catch (Exception e)
-            {
-                db.Machines.Remove(m);
-                await db.SaveChangesAsync();
-                throw new Exception($"main api context broker error: {e.Message}", e);
-            }
             return Ok(outMachine);
         }
 
-        // [HttpGet("{machineId}")]
-        // public async Task<IActionResult> GetMachine(string machineId)
-        // {
 
-        //     return BadRequest();
-        // }
+        [HttpPost("notification")]
 
+        public async Task<IActionResult> ReceiveNotification()
+        {
+
+        }
     }
 }
 
