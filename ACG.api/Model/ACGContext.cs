@@ -18,14 +18,16 @@ namespace ACG
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.HasPostgresExtension("uuid-ossp")
-                               .Entity<Machine>()
+            var uuidOsspExtension = modelBuilder.HasPostgresExtension("uuid-ossp");
+            uuidOsspExtension.Entity<Machine>()
                                .Property(e => e.Id)
                                .HasDefaultValueSql("uuid_generate_v4()");
-            // .. and invoke "BuildIndexesFromAnnotations"!
-            // modelBuilder.BuildIndexesFromAnnotations();
+            uuidOsspExtension.Entity<MachineHistory>()
+                               .Property(e => e.Id)
+                               .HasDefaultValueSql("uuid_generate_v4()");
         }
 
         public DbSet<Machine> Machines { get; set; }
+        public DbSet<MachineHistory> MachinesHistory { get; set; }
     }
 }

@@ -9,6 +9,7 @@ using FIWARE.ContextBroker.Enums;
 using FIWARE.ContextBroker.Dto;
 using System;
 using FIWARE.ContextBroker.Helpers;
+using ACG.api.Model;
 
 namespace ACG.api.Controllers
 {
@@ -150,6 +151,15 @@ namespace ACG.api.Controllers
 
         public async Task<IActionResult> ReceiveNotification([FromBody] Notification<Dto.ContextBroker.Machine> machineNotification)
         {
+            var machineData = machineNotification.DataTyped.First();
+            var machineHistory = new MachineHistory() {
+                MachineId = Guid.Parse(machineData.Id),
+                PTime = machineData.PTime,
+                Lat = machineData.Position.Coordinates[0],
+                Lng = machineData.Position.Coordinates[1],
+            };
+            db.MachinesHistory.Add(machineHistory);
+            await db.SaveChangesAsync();
             return Ok();
         }
     }
