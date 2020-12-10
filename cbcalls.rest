@@ -43,6 +43,17 @@ Content-Type: application/json
 
 ###
 
+PATCH http://dockerdev.agricolus.com:1026/v2/entities/32163ced-c7cd-4161-b1d3-6cb94adff0bf/attrs?options=keyValues HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+Content-Type: application/json
+
+{
+    "pTime": "2020-11-25T09:47:46Z"
+}
+
+###
 
 GET http://dockerdev.agricolus.com:1026/v2/subscriptions HTTP/1.1
 Accept: application/json
@@ -58,7 +69,7 @@ fiware-service: agri_contractor_gateway
 fiware-servicepath: /
 
 ###
-POST http://dockerdev.agricolus.com:5005/machines/import/producer HTTP/1.1
+POST http://dockerdev.agricolus.com:5006/machines/notification HTTP/1.1
 Accept: application/json
 Content-Type: application/json
 

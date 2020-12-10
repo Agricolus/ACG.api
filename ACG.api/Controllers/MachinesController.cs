@@ -8,6 +8,7 @@ using FIWARE;
 using FIWARE.ContextBroker.Enums;
 using FIWARE.ContextBroker.Dto;
 using System;
+using FIWARE.ContextBroker.Helpers;
 
 namespace ACG.api.Controllers
 {
@@ -147,9 +148,9 @@ namespace ACG.api.Controllers
 
         [HttpPost("notification")]
 
-        public async Task<IActionResult> ReceiveNotification()
+        public async Task<IActionResult> ReceiveNotification([FromBody] Notification<Dto.ContextBroker.Machine> machineNotification)
         {
-            return null;
+            return Ok();
         }
     }
 }
