@@ -149,7 +149,7 @@ namespace ACG.api.Controllers
 
         public async Task<IActionResult> ReceiveNotification()
         {
-
+            return null;
         }
     }
 }
