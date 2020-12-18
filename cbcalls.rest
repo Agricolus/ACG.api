@@ -7,7 +7,7 @@ fiware-servicepath: /
 ###
 
 
-DELETE http://dockerdev.agricolus.com:1026/v2/entities/aa9eb4bb-9a21-4dba-a7ec-58d58e092b3c HTTP/1.1
+DELETE http://dockerdev.agricolus.com:1026/v2/entities/urn:ngsi-ld:Person:WKR1 HTTP/1.1
 Accept: application/json
 fiware-service: agri_contractor_gateway
 fiware-servicepath: /

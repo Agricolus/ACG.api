@@ -32,6 +32,7 @@ namespace ACG.api
             // Swagger Config
             services.AddSwaggerGen(c =>
             {
+                c.CustomSchemaIds(x => x.FullName);
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
