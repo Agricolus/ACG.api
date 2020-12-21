@@ -3,9 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using FIWARE.ContextBroker.Interfaces;
 using FIWARE.ContextBroker.Serializer;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace ACG.api.Dto.ContextBroker
 {
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy), ItemNullValueHandling = NullValueHandling.Ignore)]
     public class Machine : IContextBrokerEntity
     {
         public string Id { get; set; }

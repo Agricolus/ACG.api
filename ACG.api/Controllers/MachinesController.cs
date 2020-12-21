@@ -95,9 +95,11 @@ namespace ACG.api.Controllers
                 };
                 var cbConfig = configuration.GetSection("contextBroker");
                 var cbUrl = cbConfig.GetValue<string>("cbUrl");
+                var cbService = cbConfig.GetValue<string>("cbService");
+                var cbServicePath = cbConfig.GetValue<string>("cbServicePath");
                 var contextBrokerNotificationEndpoint = cbConfig.GetValue<string>("machineNoditiciationCB");
 
-                var cbClient = new ContextBrokerClient("agri_contractor_gateway", "/", cbUrl);
+                var cbClient = new ContextBrokerClient(cbService, cbServicePath, cbUrl);
                 var cbEntity = await cbClient.CreateEntity<Dto.ContextBroker.Machine>(cbMachineEntity, AttributesFormatEnum.keyValues);
                 var sub = new Subscription()
                 {
