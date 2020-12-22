@@ -21,7 +21,7 @@
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "/",
-      "applicationUrl": "http://localhost:5005",
+      "applicationUrl": "http://dockerdev.agricolus.com:5005",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

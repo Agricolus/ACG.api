@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using NetTopologySuite.Geometries;
 
 namespace ACG.api.Model
 {
@@ -16,6 +17,8 @@ namespace ACG.api.Model
         
         public double? Lng { get; set; }
         
-        public DateTime? PTime { get; set; }        
+        public DateTime? PTime { get; set; }
+
+        public Point Position { get; set; }
     }
 }

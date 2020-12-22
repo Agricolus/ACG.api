@@ -52,13 +52,17 @@ namespace ACG.api
 
             switch (Configuration["DataBaseType"])
             {
-                case "postgre": services.AddDbContext<ACGContext>(options => options.UseNpgsql(
-                                                                Configuration.GetConnectionString("ACGPostgreContext"),
-                                                                x => x.UseNetTopologySuite())); break;
+                case "postgre":
+                    services.AddDbContext<ACGContext>(options => options.UseNpgsql(
+                                                    Configuration.GetConnectionString("ACGPostgreContext"),
+                                                    x => x.UseNetTopologySuite())); break;
                     // case "mysql": services.AddDbContext<StationsContext>(options => options.UseMySql(configuration.GetConnectionString("ACGMySqlContext"))); break;
             }
 
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

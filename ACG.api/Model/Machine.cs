@@ -42,6 +42,8 @@ namespace ACG.api.Model
         
         public DateTime? PTime { get; set; }                
         
-        public String OtherData { get; set; }
+        public string OtherData { get; set; }
+
+        public string CBSubscriptionId { get; set; }
     }
 }

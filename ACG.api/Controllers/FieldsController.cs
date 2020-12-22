@@ -3,14 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using FIWARE;
-using FIWARE.ContextBroker.Enums;
-using FIWARE.ContextBroker.Dto;
-using System;
-using FIWARE.ContextBroker.Helpers;
-using ACG.api.Model;
 using NetTopologySuite.Geometries;
+using NetTopologySuite;
 
 namespace ACG.api.Controllers
 {
@@ -54,6 +48,10 @@ namespace ACG.api.Controllers
         [HttpPost("import/producer")]
         public async Task<IActionResult> RegisterFields([FromBody] Dto.Field field)
         {
+            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+            var boundaries = geometryFactory.CreateMultiPolygon(field.Boundaries.Select(b => geometryFactory.CreatePolygon(geometryFactory.CreateLinearRing(b.Select(pp => new Coordinate(pp[0], pp[1])).ToArray()))).ToArray());
+            var unpassableBoundaries = geometryFactory.CreateMultiPolygon(field.UnpassableBoundaries.Select(b => geometryFactory.CreatePolygon(geometryFactory.CreateLinearRing(b.Select(pp => new Coordinate(pp[0], pp[1])).ToArray()))).ToArray());
+
             var f = new Model.Field()
             {
                 Id = field.Id.Value,
@@ -63,8 +61,8 @@ namespace ACG.api.Controllers
                 UserId = field.UserId,
                 ExternalId = field.ExternalId,
                 ModificationTime = field.ModificationTime,
-                Boundaries = new MultiPolygon(field.Boundaries.Select(b => new Polygon(new LinearRing(b.Select(polypoint => new Coordinate(polypoint[0], polypoint[1])).ToArray()))).ToArray()),
-                UnpassableBoundaries = new MultiPolygon(field.UnpassableBoundaries.Select(b => new Polygon(new LinearRing(b.Select(polypoint => new Coordinate(polypoint[0], polypoint[1])).ToArray()))).ToArray()),
+                Boundaries = boundaries,
+                UnpassableBoundaries = unpassableBoundaries,
                 IsRegistered = true
             };
             db.Fields.Add(f);

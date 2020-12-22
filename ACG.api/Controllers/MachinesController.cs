@@ -10,6 +10,8 @@ using FIWARE.ContextBroker.Dto;
 using System;
 using FIWARE.ContextBroker.Helpers;
 using ACG.api.Model;
+using NetTopologySuite.Geometries;
+using NetTopologySuite;
 
 namespace ACG.api.Controllers
 {
@@ -48,6 +50,44 @@ namespace ACG.api.Controllers
                                   }).ToListAsync();
 
             return Ok(machines);
+        }
+
+        [HttpGet("{userId}/{machineId}")]
+        public async Task<IActionResult> GetMachineLocations(string userId, Guid machineId, DateTime start, DateTime end)
+        {
+            var fieldsPoints = await (from ml in db.MachinesHistory
+                                  from f in db.Fields
+                                  where ml.MachineId == machineId && f.Boundaries.Contains(ml.Position)
+                                  orderby ml.PTime ascending
+                                  select new
+                                  {
+                                      field = f,
+                                      point = ml
+                                  }
+                                  ).ToListAsync();
+
+            var fieldsPointsGrouped = (from x in fieldsPoints
+                     group x.point by x.field into g
+                     select new
+                     {
+                         field = new Dto.Field()
+                         {
+                             Id = g.Key.Id,
+                             Area = g.Key.Area,
+                             ClientId = g.Key.ClientId,
+                             ExternalId = g.Key.ExternalId,
+                             Name = g.Key.Name,
+                             ModificationTime = g.Key.ModificationTime,
+                             ProducerCode = g.Key.ProducerCode,
+                             IsRegistered = true,
+                             UserId = g.Key.UserId,
+                             Boundaries = g.Key.Boundaries.Geometries.Select(g => g.Coordinates.Select(c => new double[] { c.X, c.Y }).ToArray()).ToArray(),
+                             UnpassableBoundaries = g.Key.UnpassableBoundaries.Geometries.Select(g => g.Coordinates.Select(c => new double[] { c.X, c.Y }).ToArray()).ToArray(),
+                         },
+                         points = g.Select(v => new { time = v.PTime.Value, point = new double[] { v.Lat.Value, v.Lng.Value } }).GroupBy(x => x.time.Date ).Select(g => g.Select(x => x))
+                     }).ToList();
+
+            return Ok(fieldsPointsGrouped);
         }
 
 
@@ -120,7 +160,9 @@ namespace ACG.api.Controllers
                         }
                     }
                 };
-                await cbClient.CreateSubscription(sub);
+                var cbSubsrcitpionId = await cbClient.CreateSubscription(sub);
+                m.CBSubscriptionId = cbSubsrcitpionId;
+                await db.SaveChangesAsync();
             }
             catch (Exception e)
             {
@@ -154,11 +196,17 @@ namespace ACG.api.Controllers
         public async Task<IActionResult> ReceiveNotification([FromBody] Notification<Dto.ContextBroker.Machine> machineNotification)
         {
             var machineData = machineNotification.DataTyped.First();
-            var machineHistory = new MachineHistory() {
+
+            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+            var machinePoint = geometryFactory.CreatePoint(new Coordinate(machineData.Position.Coordinates[0], machineData.Position.Coordinates[1]));
+
+            var machineHistory = new MachineHistory()
+            {
                 MachineId = Guid.Parse(machineData.Id),
                 PTime = machineData.PTime,
                 Lat = machineData.Position.Coordinates[0],
                 Lng = machineData.Position.Coordinates[1],
+                Position = machinePoint
             };
             db.MachinesHistory.Add(machineHistory);
             await db.SaveChangesAsync();
