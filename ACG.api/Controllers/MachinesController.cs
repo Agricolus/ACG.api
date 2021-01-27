@@ -12,6 +12,8 @@ using FIWARE.ContextBroker.Helpers;
 using ACG.api.Model;
 using NetTopologySuite.Geometries;
 using NetTopologySuite;
+using System.Collections.Generic;
+using ACG.api.Dto;
 
 namespace ACG.api.Controllers
 {
@@ -53,43 +55,19 @@ namespace ACG.api.Controllers
         }
 
         [HttpGet("{userId}/{machineId}")]
-        public async Task<IActionResult> GetMachineLocations(string userId, Guid machineId, DateTime start, DateTime end)
+        public async Task<IActionResult> GetMachineLocations(string userId, Guid machineId, DateTime? start = null, DateTime? end = null)
         {
-            var fieldsPoints = await (from ml in db.MachinesHistory
-                                  from f in db.Fields
-                                  where ml.MachineId == machineId && f.Boundaries.Contains(ml.Position)
-                                  orderby ml.PTime ascending
-                                  select new
-                                  {
-                                      field = f,
-                                      point = ml
-                                  }
-                                  ).ToListAsync();
+            var points = await (from ml in db.MachinesHistory
+                                where ml.MachineId == machineId &&
+                                    (start == null || ml.PTime >= start) &&
+                                    (end == null || ml.PTime <= end)
+                                orderby ml.PTime ascending
+                                select ml).ToListAsync();
 
-            var fieldsPointsGrouped = (from x in fieldsPoints
-                     group x.point by x.field into g
-                     select new
-                     {
-                         field = new Dto.Field()
-                         {
-                             Id = g.Key.Id,
-                             Area = g.Key.Area,
-                             ClientId = g.Key.ClientId,
-                             ExternalId = g.Key.ExternalId,
-                             Name = g.Key.Name,
-                             ModificationTime = g.Key.ModificationTime,
-                             ProducerCode = g.Key.ProducerCode,
-                             IsRegistered = true,
-                             UserId = g.Key.UserId,
-                             Boundaries = g.Key.Boundaries.Geometries.Select(g => g.Coordinates.Select(c => new double[] { c.X, c.Y }).ToArray()).ToArray(),
-                             UnpassableBoundaries = g.Key.UnpassableBoundaries.Geometries.Select(g => g.Coordinates.Select(c => new double[] { c.X, c.Y }).ToArray()).ToArray(),
-                         },
-                         points = g.Select(v => new { time = v.PTime.Value, point = new double[] { v.Lat.Value, v.Lng.Value } }).GroupBy(x => x.time.Date ).Select(g => g.Select(x => x))
-                     }).ToList();
 
-            return Ok(fieldsPointsGrouped);
+            var allPoints = points.Select(v => new { operation = v.Operation, time = v.PTime, point = new double[] { v.Lat, v.Lng } }).GroupBy(x => x.time.Date).Select(g => g.Select(x => x));
+            return Ok(allPoints);           
         }
-
 
         [HttpPost("import/producer")]
         public async Task<IActionResult> RegisterMachines([FromBody] Dto.Machine machine)
@@ -208,7 +186,33 @@ namespace ACG.api.Controllers
                 Lng = machineData.Position.Coordinates[1],
                 Position = machinePoint
             };
+            var machine = await db.Machines.Where(m => m.Id.ToString() == machineData.Id).FirstOrDefaultAsync();
+            machine.Lat = machineData.Position.Coordinates[0];
+            machine.Lng = machineData.Position.Coordinates[1];
             db.MachinesHistory.Add(machineHistory);
+            await db.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("{userId}/{machineId}/operationpoints")]
+
+        public async Task<IActionResult> ReceiveMachineOperationPoints([FromBody] List<OperationPoint> operationPoints, string userId, Guid machineId)
+        {
+            foreach (var point in operationPoints)
+            {
+                var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+                var machinePoint = geometryFactory.CreatePoint(new Coordinate(point.X, point.Y));
+                var machineHistory = new MachineHistory()
+                {
+                    MachineId = machineId,
+                    PTime = point.Timestamp,
+                    Lat = point.Y,
+                    Lng = point.X,
+                    Position = machinePoint,
+                    Operation = point.Operation
+                };
+                db.MachinesHistory.Add(machineHistory);
+            }
             await db.SaveChangesAsync();
             return Ok();
         }

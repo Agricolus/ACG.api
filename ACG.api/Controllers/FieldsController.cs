@@ -24,22 +24,25 @@ namespace ACG.api.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetFields(string userId)
         {
-            var fields = await (from f in db.Fields
-                                where f.UserId == userId
-                                select new Dto.Field()
-                                {
-                                    Id = f.Id,
-                                    Area = f.Area,
-                                    ClientId = f.ClientId,
-                                    ExternalId = f.ExternalId,
-                                    Name = f.Name,
-                                    ModificationTime = f.ModificationTime,
-                                    ProducerCode = f.ProducerCode,
-                                    IsRegistered = true,
-                                    UserId = f.UserId,
-                                    Boundaries = f.Boundaries.Geometries.Select(g => g.Coordinates.Select(c => new double[] { c.X, c.Y }).ToArray()).ToArray(),
-                                    UnpassableBoundaries = f.UnpassableBoundaries.Geometries.Select(g => g.Coordinates.Select(c => new double[] { c.X, c.Y }).ToArray()).ToArray(),
-                                }).ToListAsync();
+            var fieldsfromdb = await (from f in db.Fields
+                                      where f.UserId == userId
+                                      select f).ToListAsync();
+
+            var fields = from f in fieldsfromdb
+                         select new Dto.Field()
+                         {
+                             Id = f.Id,
+                             Area = f.Area,
+                             ClientId = f.ClientId,
+                             ExternalId = f.ExternalId,
+                             Name = f.Name,
+                             ModificationTime = f.ModificationTime,
+                             ProducerCode = f.ProducerCode,
+                             IsRegistered = true,
+                             UserId = f.UserId,
+                             Boundaries = f.Boundaries.Geometries.Select(geom => geom.Coordinates.Select(c => new double[] { c.X, c.Y }).ToArray()).ToArray(),
+                             UnpassableBoundaries = f.UnpassableBoundaries.Geometries.Select(geom => geom.Coordinates.Select(c => new double[] { c.X, c.Y }).ToArray()).ToArray(),
+                         };
 
             return Ok(fields);
         }

@@ -13,12 +13,13 @@ namespace ACG.api.Model
         [StringLength(64)]
         public Guid MachineId { get; set; }
        
-        public double? Lat { get; set; }
+        public double Lat { get; set; }
         
-        public double? Lng { get; set; }
+        public double Lng { get; set; }
         
-        public DateTime? PTime { get; set; }
+        public DateTime PTime { get; set; }
 
         public Point Position { get; set; }
+        public string Operation { get; set; }
     }
 }
