@@ -1,0 +1,20 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "keryockAuth": {
+    "clientId": "XXXXXX",
+    "clientSecret": "XXXXXX",
+    "tokenUrl": "http://<keyrok-instance>/oauth2/token",
+    "redirectUrl": "http://<api-url>/auth/cb"
+  },
+  "DataBaseType": "postgre",
+  "ConnectionStrings": {
+    "ACGPostgreContext": "Host=<db-ip>;Database=<db-name>;Username=<db-user>;Password=<db-password>",
+    "ACGMySqlContext": "Host=<db-ip>;Database=<db-name>;Username=<db-user>;Password=<db-password>"
+  }
+}

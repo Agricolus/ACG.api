@@ -1,0 +1,90 @@
+
+GET http://dockerdev.agricolus.com:1026/v2/entities?options=keyValues HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+
+###
+
+
+DELETE http://dockerdev.agricolus.com:1026/v2/entities/b9fa6216-5bbb-43b1-9021-74fd45577d4d HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+
+###
+POST http://dockerdev.agricolus.com:1026/v2/entities?options=keyValues HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+Content-Type: application/json
+
+{
+    "id": "2a9eb4bb-9a21-4dba-a7ec-58d58e092b3c",
+    "type": "tractor",
+    "externalId": "461859",
+    "userId": "bd8a4707-df0a-41a7-9223-5f928d27f687",
+    "producerCode": "johndeere",
+    "position": {
+        "type": "Point",
+        "coordinates": [
+            51.48975,
+            -0.9410555555555555
+        ]
+    },
+
+    "model": "6215R",
+    "code": "L 08PF4",
+    "description": "Two-wheel Drive Tractors - 140 Hp And Above",
+    "producerCommercialName": "JOHN DEERE",
+    "pTime": "2020-11-25T09:47:46Z",
+    "otherData": "{\\"ValueKind\\":1}"
+}
+
+###
+
+PATCH http://dockerdev.agricolus.com:1026/v2/entities/32163ced-c7cd-4161-b1d3-6cb94adff0bf/attrs?options=keyValues HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+Content-Type: application/json
+
+{
+    "pTime": "2020-11-25T09:47:46Z"
+}
+
+###
+
+GET http://dockerdev.agricolus.com:1026/v2/subscriptions HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+
+###
+
+
+DELETE http://dockerdev.agricolus.com:1026/v2/subscriptions/5fe21719c113caefd12f607b HTTP/1.1
+Accept: application/json
+fiware-service: agri_contractor_gateway
+fiware-servicepath: /
+
+###
+POST http://dockerdev.agricolus.com:5006/machines/notification HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+{
+    "id": "Aa9eb4bb-9a21-4dba-a7ec-58d58e092b3c",
+    "type": "tractor",
+    "externalId": "461859",
+    "userId": "bd8a4707-df0a-41a7-9223-5f928d27f687",
+    "producerCode": "johndeere",
+    "lat": 51.48975,
+    "lng": -0.9410555555555555,
+    "name": "not valid = < > ; ()",
+    "model": "6215R",
+    "code": "L 08PF4",
+    "description": "Two-wheel Drive Tractors - 140 Hp And Above",
+    "producerCommercialName": "JOHN DEERE",
+    "pTime": "2020-11-25T09:47:46Z"
+}
