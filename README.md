@@ -15,7 +15,7 @@
 * [Introduction](#introduction)
 * [Architecture](#architecture)
 * [Functionalities](#functionalities)
-* [APIs](#apis)
+* [Vendors' APIs](#apis)
 * [Frontend](#frontend)
 * [License](#license)
 
@@ -42,7 +42,7 @@ This Gateway is both a standalone application and a data gateway for machinery d
 ![Backend services](https://user-images.githubusercontent.com/7735943/111140021-23ee6200-8582-11eb-9ca8-f0abb17aea2c.jpg)
 
 * **Vendors' ADAP SDK Plugins**: 
-   * Will interact with different producers ecosystems and cloud applications. Each producer may allow the access to a cloud repository or directly to the data through theirs proprietary ADAPT representations. This ACG.Vendors module will host the vendors' ADAP Plugins and use them to convert proprietary representations to generic ADAPT representation.
+   * Will interact with different producers ecosystems and cloud applications. Each producer may allow the access to a cloud repository or directly to the data through theirs proprietary ADAPT representations. The ACG.Vendors module will host the vendors' ADAP Plugins and use them to convert proprietary representations to generic ADAPT representation.
 * **ADAPT - ISOXML Converter**:
    * Will convert the generic ADAPT representation to ISOXML format.
 * **ISOXML - IoT Agent**:
@@ -63,9 +63,9 @@ This Gateway is both a standalone application and a data gateway for machinery d
 * APIs for data access​
 * End user portal that will have access to data​
 
-## APIs
+## Vendors' APIs
 
-See the [APIs Repository](https://github.com/Agricolus/ACG.api).
+See the [Vendors' APIs Repository](https://github.com/Agricolus/ACG.Vendors).
 
 ## Frontend
 
